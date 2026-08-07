@@ -67,3 +67,55 @@
   background-image: linear-gradient(to right, color-mix(in oklab, var(--border) 32%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--border) 32%, transparent) 1px, transparent 1px);
   background-size: 28px 28px;
 }
+
+@media print {
+  @page { margin: 14mm; size: A4 landscape; }
+
+  :root { color-scheme: light; }
+  body { background: white !important; color: #14201c !important; }
+  body * { visibility: hidden; }
+
+  .print-report,
+  .print-report * { visibility: visible; }
+
+  .print-report {
+    display: flex !important;
+    position: absolute;
+    inset: 0;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    color: #14201c;
+    font-family: Arial, sans-serif;
+  }
+
+  .print-report header {
+    border-bottom: 2px solid #14201c;
+    padding-bottom: 16px;
+  }
+
+  .print-report h1 { margin: 4px 0 10px; font-size: 30px; }
+  .print-report h2 { margin: 0 0 10px; font-size: 20px; }
+  .print-report h3 { margin: 12px 0 4px; font-size: 14px; }
+  .print-report p { margin: 0; font-size: 11px; line-height: 1.5; }
+  .print-report section { break-inside: avoid; }
+  .print-report section + section { break-before: page; }
+  .print-report footer { border-top: 1px solid #9aa7a1; padding-top: 8px; font-size: 10px; }
+  .print-kicker { color: #187a4c; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .print-question { margin-bottom: 8px !important; font-size: 17px !important; font-weight: 700; }
+
+  .print-report [data-slot='table-container'] { overflow: visible; }
+  .print-report table { min-width: 0 !important; width: 100%; table-layout: fixed; border-collapse: collapse; }
+  .print-report th,
+  .print-report td {
+    border: 1px solid #cad2ce;
+    padding: 6px;
+    color: #14201c !important;
+    font-size: 8px;
+    line-height: 1.35;
+    white-space: normal !important;
+    vertical-align: top;
+  }
+  .print-report th { background: #edf2ef !important; font-weight: 700; }
+  .print-report [data-slot='badge'] { border: 1px solid #9aa7a1; background: transparent !important; color: #14201c !important; }
+}

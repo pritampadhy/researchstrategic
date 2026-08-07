@@ -14,6 +14,7 @@ export function SiteHeader() {
         </Link>
         <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex" aria-label="Primary navigation">
           <Link href="#method" className="transition-colors hover:text-foreground">Method</Link>
+          <Link href="#workspace" className="transition-colors hover:text-foreground">Try prototype</Link>
           <Link href="#research" className="transition-colors hover:text-foreground">Research</Link>
           <Link href="#principles" className="transition-colors hover:text-foreground">Principles</Link>
         </nav>
