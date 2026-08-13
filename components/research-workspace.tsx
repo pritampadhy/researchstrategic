@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useRef, useState } from 'react'
-import { ArrowRight, FileText, FlaskConical, Pencil, Printer, RotateCw, Scale } from 'lucide-react'
+import { ArrowRight, Check, Copy, Download, FileText, FlaskConical, Image as ImageIcon, Pencil, Printer, RotateCw, Scale } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,6 +18,7 @@ export function ResearchWorkspace() {
   const [error, setError] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [report, setReport] = useState<SimulatedResearchReport | null>(null)
+  const [copied, setCopied] = useState(false)
   const reportRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -53,8 +54,64 @@ export function ResearchWorkspace() {
     window.requestAnimationFrame(() => inputRef.current?.focus())
   }
 
+  function reportText() {
+    if (!report) return ''
+    return [
+      'SYNTHESIS/AI — PROTOTYPE RESEARCH REPORT',
+      `Question: ${report.question}`,
+      `Topic: ${report.topic}`,
+      `Generated: ${report.generatedAt}`,
+      '',
+      'EXECUTIVE OVERVIEW',
+      report.summary,
+      '',
+      'BALANCED VIEW',
+      report.balancedView,
+      '',
+      'RECOMMENDED NEXT STEP',
+      report.recommendation,
+      '',
+      'RANKED CLAIMS',
+      ...rankedClaims.map((claim, index) => `${index + 1}. ${claim.title} (${claim.confidence}% confidence) — ${claim.judgment}`),
+      '',
+      'Prototype simulation only. No external sources queried.',
+    ].join('\\n')
+  }
+
+  function downloadText() {
+    const blob = new Blob([reportText()], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = 'synthesis-research-report.txt'
+    anchor.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function copyForSocial() {
+    if (!report) return
+    const text = `${report.question}\\n\\n${report.balancedView}\\n\\nKey takeaway: ${report.recommendation}\\n\\n#Research #B2BSaaS #ProductStrategy`
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1800)
+  }
+
+  function downloadSocialImage() {
+    if (!report) return
+    const escapeXml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;')
+    const headline = report.question.length > 84 ? `${report.question.slice(0, 84)}…` : report.question
+    const takeaway = report.recommendation.length > 190 ? `${report.recommendation.slice(0, 190)}…` : report.recommendation
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#10231b"/><rect x="58" y="58" width="1084" height="514" rx="28" fill="#17372a" stroke="#69d69a" stroke-opacity=".35"/><text x="100" y="135" fill="#8ee6af" font-family="Arial" font-size="22" font-weight="700" letter-spacing="4">SYNTHESIS/AI · BALANCED VIEW</text><text x="100" y="215" fill="#f2f7f3" font-family="Arial" font-size="38" font-weight="700">${escapeXml(headline)}</text><foreignObject x="100" y="270" width="940" height="170"><div xmlns="http://www.w3.org/1999/xhtml" style="font: 26px Arial; line-height:1.45; color:#d5e9dc">${escapeXml(takeaway)}</div></foreignObject><text x="100" y="520" fill="#8ee6af" font-family="Arial" font-size="20">Prototype report · ${escapeXml(report.generatedAt)}</text></svg>`
+    const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }))
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = 'synthesis-social-card.svg'
+    anchor.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
-    <section id="workspace" className="border-b border-border py-20 lg:py-28">
+    <section id="workspace" className="relative overflow-hidden border-b border-primary/20 bg-primary/[0.035] py-12 lg:py-20">
       <div className="mx-auto flex max-w-7xl flex-col gap-10 px-5 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
           <div className="flex flex-col gap-4">
@@ -68,7 +125,16 @@ export function ResearchWorkspace() {
           </p>
         </div>
 
-        <Card className="overflow-hidden border-primary/20 bg-card/70">
+        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+          <span className="py-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">Start here</span>
+          {[exampleQuestion, 'Will AI research tools reduce time-to-insight for product teams?', 'Is founder-led sales repeatable for this B2B SaaS prototype?'].map((prompt) => (
+            <Button key={prompt} type="button" variant="outline" size="sm" onClick={() => { setQuestion(prompt); setError(''); inputRef.current?.focus() }}>
+              {prompt.length > 54 ? `${prompt.slice(0, 54)}…` : prompt}
+            </Button>
+          ))}
+        </div>
+
+        <Card className="overflow-hidden border-primary/30 bg-card/80 shadow-[0_16px_60px_-24px_hsl(var(--primary)/0.5)]">
           <CardHeader className="border-b border-border bg-muted/20">
             <CardTitle className="flex items-center gap-2 text-xl">
               <FlaskConical className="size-5 text-primary" aria-hidden="true" />
@@ -119,7 +185,9 @@ export function ResearchWorkspace() {
               <div className="flex flex-wrap gap-2">
                 <Button variant="outline" onClick={editQuestion}><Pencil data-icon="inline-start" aria-hidden="true" />Edit question</Button>
                 <Button variant="outline" onClick={() => generateReport(question)}><RotateCw data-icon="inline-start" aria-hidden="true" />Run again</Button>
-                <Button onClick={() => window.print()}><Printer data-icon="inline-start" aria-hidden="true" />Print / save PDF</Button>
+                <Button onClick={() => window.print()}><Printer data-icon="inline-start" aria-hidden="true" />PDF</Button>
+                <Button variant="outline" onClick={downloadText}><Download data-icon="inline-start" aria-hidden="true" />Text</Button>
+                <Button variant="outline" onClick={downloadSocialImage}><ImageIcon data-icon="inline-start" aria-hidden="true" />Social image</Button>
               </div>
             </div>
 
@@ -155,6 +223,17 @@ export function ResearchWorkspace() {
                 </TabsContent>
               </Tabs>
             </div>
+
+            <Card className="no-print border-primary/20 bg-muted/20">
+              <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-base"><ImageIcon className="size-4 text-primary" aria-hidden="true" />Post-ready takeaway</CardTitle>
+                  <CardDescription>Copy the short version or download a visual card for social publishing.</CardDescription>
+                </div>
+                <Button variant="outline" onClick={copyForSocial}>{copied ? <Check data-icon="inline-start" aria-hidden="true" /> : <Copy data-icon="inline-start" aria-hidden="true" />}{copied ? 'Copied' : 'Copy social text'}</Button>
+              </CardHeader>
+              <CardContent><p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{report.balancedView} <span className="font-medium text-foreground">Key takeaway:</span> {report.recommendation}</p></CardContent>
+            </Card>
 
             <article className="print-report hidden" aria-label="Printable prototype research report">
               <header>

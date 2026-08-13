@@ -20,7 +20,7 @@ export function HeroSection() {
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button render={<Link href="#access" />} nativeButton={false} size="lg" className="h-12 px-5 text-base">
+            <Button render={<Link href="#workspace" />} nativeButton={false} size="lg" className="h-12 px-5 text-base">
               Get a prototype walkthrough <ArrowRight data-icon="inline-end" aria-hidden="true" />
             </Button>
             <Button render={<Link href="#research" />} nativeButton={false} variant="outline" size="lg" className="h-12 px-5 text-base">

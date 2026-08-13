@@ -18,7 +18,7 @@ export function SiteHeader() {
           <Link href="#research" className="transition-colors hover:text-foreground">Research</Link>
           <Link href="#principles" className="transition-colors hover:text-foreground">Principles</Link>
         </nav>
-        <Button render={<Link href="#access" />} nativeButton={false} size="lg">
+        <Button render={<Link href="#workspace" />} nativeButton={false} size="lg">
           Request access <ArrowUpRight data-icon="inline-end" aria-hidden="true" />
         </Button>
       </div>
