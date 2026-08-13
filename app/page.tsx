@@ -1,4 +1,3 @@
-import { AccessSection } from '@/components/access-section'
 import { HeroSection } from '@/components/hero-section'
 import { MethodSection } from '@/components/method-section'
 import { PrinciplesSection } from '@/components/principles-section'
@@ -12,12 +11,11 @@ export default function Page() {
     <>
       <SiteHeader />
       <main>
+        <ResearchWorkspace />
         <HeroSection />
         <MethodSection />
-        <ResearchWorkspace />
         <ResearchSection />
         <PrinciplesSection />
-        <AccessSection />
       </main>
       <SiteFooter />
     </>
